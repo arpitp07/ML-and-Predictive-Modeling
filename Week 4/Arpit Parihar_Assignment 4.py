@@ -11,18 +11,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
-import warnings
 from pretty_cm import pretty_plot_confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
-from xgboost import XGBClassifier as XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, confusion_matrix, classification_report, precision_recall_curve, auc
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from IPython.core.interactiveshell import InteractiveShell
-InteractiveShell.ast_node_interactivity = "all"
+from xgboost import XGBClassifier as XGBClassifier
+import warnings
 warnings.filterwarnings('ignore')
-%pylab inline
-%config InlineBackend.figure_formats = ['png']
 # %% [markdown]
 # ### 1\. Data Processing
 # %%
@@ -88,13 +84,13 @@ def classification_results(act, pred, prob, header=None):
 def feature_importance_plot(cols, imp, title=''):
     print(color.UNDERLINE + color.BOLD + title +
           ' Feature Importance Plot:\n' + color.END)
-    fi = sorted(list(imp), reverse=True)[:5]
+    fi = sorted(list(imp), reverse=True)[:10]
     cols = [x for _, x in sorted(
-        zip(imp, cols), reverse=True)][:5]
-    fi_plot = sns.barplot(cols, fi)
-    plt.xlabel('Features')
-    plt.xticks(rotation=90)
-    plt.ylabel('Importance')
+        zip(imp, cols), reverse=True)][:10]
+    fi_plot = sns.barplot(fi, cols)
+    plt.ylabel('Features')
+    # plt.xticks(rotation=90)
+    plt.xlabel('Importance')
     plt.title(title + ' Feature Importance Plot')
     plt.show(fi_plot);
     print('\n')
@@ -170,7 +166,7 @@ ada_tuned = model_fit_and_report(
 # %%
 param_grid = {
     'n_estimators': [100, 200, 300, 400],
-    'learning_rate': [0.8, 1, 1.2],
+    'learning_rate': [0.4, 0.5, 0.6],
     'max_depth': [1, 2]}
 
 gbm_tuned = model_fit_and_report(
@@ -203,3 +199,17 @@ xgb_tuned = model_fit_and_report(
     save_as='xgb_tuned.pkl')
 # %% [markdown]
 # The train and test performance are very close for xgboost as well, and the model is not overfitting
+# %% [markdown]
+# ### 6\. Moving into Conceptual Problems:
+# 
+# a) What does the alpha parameter represent in AdaBoost? Please refer to chapter 7 of the Hands-On ML book if you are struggling.
+# 
+# b) In AdaBoost explain how the final predicted class is determined. Be sure to reference the alpha term in your explanation.
+# 
+# c) In Gradient Boosting, what is the role of the max_depth parameter? Why is it important to tune on this parameter?
+# 
+# d) In Part (e) of Steps 2-5 you determined the top 5 predictors across each model. Do any predictors show up in the top 5 predictors for all three models? If so, comment on if this predictor makes sense given what you are attempting to predict. (Note: If you don't have any predictors showing up across all 3 predictors, explain one that shows up in 2 of them).
+# 
+# e) From the models run in steps 2-5, which performs the best based on the Classification Report? Support your reasoning with evidence from your test data and be sure to share the optimal hyperparameters found from your grid search.
+# 
+# f) For your best performing model, plot out a ROC curve using your test data. Feel free to use sklearn, matplotlib or any other method in python. Describe what the x-axis & y-axis of the ROC curve tell us about a classifier.
