@@ -17,7 +17,6 @@ import seaborn as sns
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
 warnings.filterwarnings('ignore')
-%config InlineBackend.figure_formats = ['png']
 # %% [markdown]
 # ### Part A: Data Cleaning & Exploratory Analysis
 # 1. Import full data set using Pandas:

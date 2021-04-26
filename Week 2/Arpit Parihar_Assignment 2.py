@@ -19,8 +19,6 @@ import seaborn as sns
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
 warnings.filterwarnings('ignore')
-%pylab inline
-%config InlineBackend.figure_formats = ['png']
 # %% [markdown]
 # ### Part A: Data Cleaning
 # 1\. We will increase the complexity of our model slightly by increasing the number of features. Keep the following features:

@@ -21,8 +21,6 @@ from pretty_cm import pretty_plot_confusion_matrix
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
 warnings.filterwarnings('ignore')
-%pylab inline
-%config InlineBackend.figure_formats = ['png']
 # %% [markdown]
 # ### 1\. Data Processing:
 # %% [markdown]
