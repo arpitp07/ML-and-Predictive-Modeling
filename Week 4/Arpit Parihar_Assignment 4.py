@@ -55,7 +55,7 @@ rf_base.fit(X_train, y_train)
 # %%
 y_pred_base = rf_base.predict(X_test)
 y_prob_base = rf_base.predict_proba(X_test)[:, 1]
-# %% [markdown]
+# %%
 
 
 class color:    # class to format print statements
@@ -90,7 +90,9 @@ def classification_results(act, pred, prob, header=None):
     print('\n')
 
 
-def feature_importance_plot(cols, imp):
+def feature_importance_plot(cols, imp, title=''):
+    print(color.UNDERLINE + color.BOLD + title +
+          ' Feature Importance Plot:\n' + color.END)
     fi = sorted(list(imp), reverse=True)[:5]
     cols = [x for _, x in sorted(
         zip(imp, cols), reverse=True)][:5]
@@ -98,8 +100,41 @@ def feature_importance_plot(cols, imp):
     plt.xlabel('Features')
     plt.xticks(rotation=90)
     plt.ylabel('Importance')
-    plt.title('Feature Importance Plot')
+    plt.title(title + ' Feature Importance Plot')
     plt.show(fi_plot);
+    print('\n')
+
+
+def model_fit_and_report(X_train, X_test, y_train, y_test, base, title, tuned=False, cv=None, param_grid=None, save_as=None):
+
+    try:
+        model = joblib.load(save_as)
+        model_best = model.best_estimator_ if tuned else model
+    except:
+        if tuned:
+            model = GridSearchCV(
+                base, param_grid, cv=cv,
+                scoring='roc_auc', refit=True, n_jobs=-1, verbose=5)
+        else:
+            model = base
+        model.fit(X_train, y_train)
+        model_best = model.best_estimator_ if tuned else model
+
+    if save_as: joblib.dump(model, save_as)
+
+    feature_importance_plot(
+        X_train.columns, model_best.feature_importances_, title)
+    y_pred = model_best.predict(X_test)
+    y_prob = model_best.predict_proba(X_test)[:, 1]
+    y_pred_tr = model_best.predict(X_train)
+    y_prob_tr = model_best.predict_proba(X_train)[:, 1]
+
+    classification_results(y_test, y_pred, y_prob,
+                           title + ' Test Performance')
+    classification_results(y_train, y_pred_tr, y_prob_tr,
+                           title + ' Train Performance')
+
+    return model
 
 
 # %%
@@ -139,7 +174,8 @@ except:
 y_pred_ada = ada_tuned.best_estimator_.predict(X_test)
 y_prob_ada = ada_tuned.best_estimator_.predict_proba(X_test)[:, 1]
 # %%
-feature_importance_plot(X_train.columns, ada_tuned.best_estimator_.feature_importances_)
+feature_importance_plot(
+    X_train.columns, ada_tuned.best_estimator_.feature_importances_)
 # %%
 classification_results(y_test, y_pred_ada, y_prob_ada,
                        'AdaBoost Test Performance')
@@ -152,4 +188,18 @@ classification_results(y_train, y_pred_ada_tr,
                        y_prob_ada_tr, 'AdaBoost Train Performance')
 # %% [markdown]
 # The train and test performance are comparable for AdaBoost, and the model is not overfitting
+# %%
+ada_tuned = model_fit_and_report(X_train, X_test, y_train, y_test, AdaBoostClassifier(
+    random_state=7), 'AdaBoost', 5, param_grid, True, 'ada_tuned.pkl')
+
+# %%
+rf_base = model_fit_and_report(
+    X_train, X_test, y_train, y_test,
+    base=RandomForestClassifier(random_state=7),
+    title='Base RF',
+    tuned=False,
+    cv=None,
+    param_grid=None,
+    save_as=None)
+
 # %%
