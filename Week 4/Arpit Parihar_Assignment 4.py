@@ -14,10 +14,10 @@ import joblib
 import warnings
 from pretty_cm import pretty_plot_confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
-import xgboost as xgb
+from xgboost import XGBClassifier as XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, confusion_matrix, classification_report, precision_recall_curve, auc
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
 warnings.filterwarnings('ignore')
@@ -26,8 +26,9 @@ warnings.filterwarnings('ignore')
 # %% [markdown]
 # ### 1\. Data Processing
 # %%
-cols = ['age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital_status', 'occupation',
-        'relationship', 'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'salary']
+cols = ['age', 'workclass', 'fnlwgt', 'education', 'education_num',
+        'marital_status', 'occupation', 'relationship', 'race', 'sex',
+        'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'salary']
 adult_df = pd.read_csv(
     'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data', header=None, names=cols, skipinitialspace=True)
 adult_df.shape
@@ -48,13 +49,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X_encoded, y, random_state=7, test_size=0.3)
 X_train.shape[1] == X_test.shape[1]
 # %% [markdown]
-# ### 2\. Random Forest Classifier - Base Model:
-# %%
-rf_base = RandomForestClassifier(random_state=7)
-rf_base.fit(X_train, y_train)
-# %%
-y_pred_base = rf_base.predict(X_test)
-y_prob_base = rf_base.predict_proba(X_test)[:, 1]
+# ### Creating functions to fit models and create performance reports
 # %%
 
 
@@ -89,7 +84,7 @@ def classification_results(act, pred, prob, header=None):
     print('AUPRC: %2.2f%%' % (100 * auc(recall, precision)))
     print('\n')
 
-
+# function to plot feature importance plot
 def feature_importance_plot(cols, imp, title=''):
     print(color.UNDERLINE + color.BOLD + title +
           ' Feature Importance Plot:\n' + color.END)
@@ -104,17 +99,24 @@ def feature_importance_plot(cols, imp, title=''):
     plt.show(fi_plot);
     print('\n')
 
-
-def model_fit_and_report(X_train, X_test, y_train, y_test, base, title, tuned=False, cv=None, param_grid=None, save_as=None):
-
+# function to fit tuned/untuned models and print performance reports
+def model_fit_and_report(X_train, X_test, y_train, y_test, base, title, tuned=False, method='grid', cv=None, param_grid=None, save_as=None):
+    assert method in ['grid', 'random'], \
+        f'Invalid "method" parameter, "{method}". It should be either "grid" or "random".'
     try:
         model = joblib.load(save_as)
         model_best = model.best_estimator_ if tuned else model
     except:
         if tuned:
-            model = GridSearchCV(
-                base, param_grid, cv=cv,
-                scoring='roc_auc', refit=True, n_jobs=-1, verbose=5)
+            if method == 'grid':
+                model = GridSearchCV(
+                    base, param_grid, cv=cv,
+                    scoring='roc_auc', refit=True, n_jobs=-1, verbose=5)
+            elif method == 'random':
+                model = RandomizedSearchCV(
+                    base, param_grid, cv=cv,
+                    scoring='roc_auc', refit=True, n_jobs=-1, verbose=5)
+
         else:
             model = base
         model.fit(X_train, y_train)
@@ -137,69 +139,67 @@ def model_fit_and_report(X_train, X_test, y_train, y_test, base, title, tuned=Fa
     return model
 
 
+# %% [markdown]
+# ### 2\. Random Forest Classifier - Base Model:
 # %%
-feature_importance_plot(X_train.columns, rf_base.feature_importances_)
-
-# %%
-classification_results(y_test, y_pred_base, y_prob_base,
-                       'Base RF Test Performance')
-
-# %%
-y_pred_base_tr = rf_base.predict(X_train)
-y_prob_base_tr = rf_base.predict_proba(X_train)[:, 1]
-
-classification_results(y_train, y_pred_base_tr,
-                       y_prob_base_tr, 'Base RF Train Performance')
+rf_base = model_fit_and_report(
+    X_train, X_test, y_train, y_test,
+    base=RandomForestClassifier(random_state=7),
+    title='Base RF')
 # %% [markdown]
 # The base random forest model is overfitting as there is a huge gap in performance between train and test data
 # %% [markdown]
 # ### 3\. AdaBoost Classifier - GridSearch:
 # %%
-try:
-    ada_tuned = joblib.load('ada_tuned.pkl')
-except:
-    # create Random Forest model
-    ada_base = AdaBoostClassifier(random_state=7)
-    # create a dictionary of parameters
-    param_grid = {
-        'n_estimators': [100, 200, 300, 400],
-        'learning_rate': [0.2, 0.4, 0.6, 0.8, 1, 1.2]}
-    ada_tuned = GridSearchCV(
-        ada_base, param_grid, cv=5,
-        scoring='roc_auc', refit=True, n_jobs=-1, verbose=5)
-    ada_tuned.fit(X_train, y_train)
-    joblib.dump(ada_tuned, 'ada_tuned.pkl')
+param_grid = {
+    'n_estimators': [100, 200, 300, 400],
+    'learning_rate': [0.2, 0.4, 0.6, 0.8, 1, 1.2]}
 
-# %%
-y_pred_ada = ada_tuned.best_estimator_.predict(X_test)
-y_prob_ada = ada_tuned.best_estimator_.predict_proba(X_test)[:, 1]
-# %%
-feature_importance_plot(
-    X_train.columns, ada_tuned.best_estimator_.feature_importances_)
-# %%
-classification_results(y_test, y_pred_ada, y_prob_ada,
-                       'AdaBoost Test Performance')
-# %%
-# %%
-y_pred_ada_tr = ada_tuned.best_estimator_.predict(X_train)
-y_prob_ada_tr = ada_tuned.best_estimator_.predict_proba(X_train)[:, 1]
-
-classification_results(y_train, y_pred_ada_tr,
-                       y_prob_ada_tr, 'AdaBoost Train Performance')
+ada_tuned = model_fit_and_report(
+    X_train, X_test, y_train, y_test,
+    base=AdaBoostClassifier(random_state=7),
+    title='AdaBoost',
+    tuned=True,
+    cv=5,
+    param_grid=param_grid,
+    save_as='ada_tuned.pkl')
 # %% [markdown]
 # The train and test performance are comparable for AdaBoost, and the model is not overfitting
+# %% [markdown]
+# ### 4\. Gradient Boosting Classifier - GridSearch:
 # %%
-ada_tuned = model_fit_and_report(X_train, X_test, y_train, y_test, AdaBoostClassifier(
-    random_state=7), 'AdaBoost', 5, param_grid, True, 'ada_tuned.pkl')
+param_grid = {
+    'n_estimators': [100, 200, 300, 400],
+    'learning_rate': [0.8, 1, 1.2],
+    'max_depth': [1, 2]}
 
-# %%
-rf_base = model_fit_and_report(
+gbm_tuned = model_fit_and_report(
     X_train, X_test, y_train, y_test,
-    base=RandomForestClassifier(random_state=7),
-    title='Base RF',
-    tuned=False,
-    cv=None,
-    param_grid=None,
-    save_as=None)
-
+    base=GradientBoostingClassifier(random_state=7),
+    title='Gradient Boost',
+    tuned=True,
+    cv=5,
+    param_grid=param_grid,
+    save_as='gbm_tuned.pkl')
+# %% [markdown]
+# The train and test performance are almost the same for gradient boost, and the model is not overfitting
+# %% [markdown]
+# ### 5\. XGBoost - RandomizedSearchCV
 # %%
+param_grid = {
+    'n_estimators': np.arange(100, 1000 + 50, 50).tolist(),
+    'learning_rate': np.arange(0.1, 1.6 + 0.1, 0.1).tolist(),
+    'max_depth': [1, 2],
+    'gamma': np.arange(0, 5 + 0.25, 0.25).tolist()}
+
+xgb_tuned = model_fit_and_report(
+    X_train, X_test, y_train, y_test,
+    base=XGBClassifier(random_state=7),
+    title='XGBoost',
+    tuned=True,
+    method='random',
+    cv=5,
+    param_grid=param_grid,
+    save_as='xgb_tuned.pkl')
+# %% [markdown]
+# The train and test performance are very close for xgboost as well, and the model is not overfitting
