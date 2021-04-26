@@ -138,3 +138,4 @@ dmypy.json
 cython_debug/
 Week 1/bottle.csv
 Week 2/bottle.csv
+Week 4/confusion_matrix.png
