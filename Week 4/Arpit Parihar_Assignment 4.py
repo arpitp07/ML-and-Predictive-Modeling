@@ -211,7 +211,7 @@ xgb_tuned = model_fit_and_report(
 #
 # **b) In AdaBoost explain how the final predicted class is determined. Be sure to reference the alpha term in your explanation.**
 #
-# In AdaBoost, final output is the sum of log-odds predicted by each tree, weighted by their importance, alpha. This final log-odds is converted to a probability, and a threshold is applied to it to get the class prediction.
+# In AdaBoost, final output is the sum of log-odds predicted by each tree, weighted by their importance, alpha. This final log-odds is converted to a probability, and a threshold is applied to it to get the class prediction. Another approach to make final predictions, which is used by default in sklearn is to take a vote of predictions, weighted by tree importance, or alpha.
 #
 # **c) In Gradient Boosting, what is the role of the max_depth parameter? Why is it important to tune on this parameter?**
 #
