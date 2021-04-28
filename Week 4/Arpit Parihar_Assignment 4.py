@@ -64,7 +64,7 @@ class color:    # class to format print statements
 
 # function to print classification results
 def classification_results(act, pred, prob, header=None):
-    labels = ['Not Default', 'Default']
+    labels = ['<=50', '>50']
     print(color.UNDERLINE + color.BOLD + header + ':\n' + color.END)
     print('Confusion Matrix:\n')
     plt.pause(1)
