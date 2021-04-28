@@ -14,7 +14,7 @@ import joblib
 from pretty_cm import pretty_plot_confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score, confusion_matrix, classification_report, precision_recall_curve, auc
+from sklearn.metrics import roc_auc_score, confusion_matrix, classification_report, precision_recall_curve, auc, plot_roc_curve
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from xgboost import XGBClassifier as XGBClassifier
 import warnings
@@ -81,6 +81,8 @@ def classification_results(act, pred, prob, header=None):
     print('\n')
 
 # function to plot feature importance plot
+
+
 def feature_importance_plot(cols, imp, title=''):
     print(color.UNDERLINE + color.BOLD + title +
           ' Feature Importance Plot:\n' + color.END)
@@ -96,6 +98,8 @@ def feature_importance_plot(cols, imp, title=''):
     print('\n')
 
 # function to fit tuned/untuned models and print performance reports
+
+
 def model_fit_and_report(X_train, X_test, y_train, y_test, base, title, tuned=False, method='grid', cv=None, param_grid=None, save_as=None):
     assert method in ['grid', 'random'], \
         f'Invalid "method" parameter, "{method}". It should be either "grid" or "random".'
@@ -201,15 +205,48 @@ xgb_tuned = model_fit_and_report(
 # The train and test performance are very close for xgboost as well, and the model is not overfitting
 # %% [markdown]
 # ### 6\. Moving into Conceptual Problems:
-# 
-# a) What does the alpha parameter represent in AdaBoost? Please refer to chapter 7 of the Hands-On ML book if you are struggling.
-# 
-# b) In AdaBoost explain how the final predicted class is determined. Be sure to reference the alpha term in your explanation.
-# 
-# c) In Gradient Boosting, what is the role of the max_depth parameter? Why is it important to tune on this parameter?
-# 
-# d) In Part (e) of Steps 2-5 you determined the top 5 predictors across each model. Do any predictors show up in the top 5 predictors for all three models? If so, comment on if this predictor makes sense given what you are attempting to predict. (Note: If you don't have any predictors showing up across all 3 predictors, explain one that shows up in 2 of them).
-# 
-# e) From the models run in steps 2-5, which performs the best based on the Classification Report? Support your reasoning with evidence from your test data and be sure to share the optimal hyperparameters found from your grid search.
-# 
-# f) For your best performing model, plot out a ROC curve using your test data. Feel free to use sklearn, matplotlib or any other method in python. Describe what the x-axis & y-axis of the ROC curve tell us about a classifier.
+#
+# **a) What does the alpha parameter represent in AdaBoost? Please refer to chapter 7 of the Hands-On ML book if you are struggling.**
+# alpha is the weight or "amount of say" each tree gets in the final prediction. Each tree has different contribution towards the final output, and this is one of the ways in which AdaBoost differs from Gradient Boost, in which, each tree has the same contribution, which is shrinkage, or the learning rate.
+#
+# **b) In AdaBoost explain how the final predicted class is determined. Be sure to reference the alpha term in your explanation.**
+#
+# In AdaBoost, final output is the sum of log-odds predicted by each tree, weighted by their importance, alpha. This final log-odds is converted to a probability, and a threshold is applied to it to get the class prediction.
+#
+# **c) In Gradient Boosting, what is the role of the max_depth parameter? Why is it important to tune on this parameter?**
+#
+# The core concept of boosting is to combine several "weak learners" to create a strong final model. If max_depth is too high, the trees will grow deep, and will no longer be "weak learners". Deep trees tend to overfit the training data, which means the residuals get smaller, which leaves little room for improvement for subsequent trees. A small learning rate counters this problem by diminishing the effect of each tree, but it's still preferable to have a smaller max_depth so that each tree can contribute a decent amount towards improving the model.
+#
+# **d) In Part (e) of Steps 2-5 you determined the top 5 predictors across each model. Do any predictors show up in the top 5 predictors for all three models? If so, comment on if this predictor makes sense given what you are attempting to predict. (Note: If you don't have any predictors showing up across all 3 predictors, explain one that shows up in 2 of them).**
+#
+# Age, an number of years of education show up in the top 5 o all the 4 models, which makes sense intuitively, as salaries go up with age, and with the years of education one has. To verify this, let's observe the plots below:
+#
+# %%
+sns.displot(adult_df, x='age', hue='salary',
+            kind='kde', fill=True, bw_adjust=0.9);
+# %% [markdown]
+# It can be seen from the plot that employees with annual salary higher than 50K are in their mid-career, with average age being around 40, while those with annual salary less than 50K have average age around 25.
+#
+# %%
+sns.histplot(adult_df, x='education_num', hue='salary', multiple='stack');
+# %% [markdown]
+# It can again be verified from the plot that people with more education have higher salaries, as the share of orange goes up with years of education.
+#
+# %% [markdown]
+# **e) From the models run in steps 2-5, which performs the best based on the Classification Report? Support your reasoning with evidence from your test data and be sure to share the optimal hyperparameters found from your grid search.**
+#
+# Based on test performance, gradient boost from sklearn performs the best. It has the highest AUROC (0.9302), highest F-1 score for the minority class (0.71) and highest AUPRC (0.8286), the latter 2 of which indicate good performance with imbalanced data. The best parameters for the model are:
+#
+# %%
+print(color.BOLD + color.UNDERLINE + f'Best parameters for gradient boost:' +
+      color.END + f'\n\n{gbm_tuned.best_params_}')
+# %% [markdown]
+# **f) For your best performing model, plot out a ROC curve using your test data. Feel free to use sklearn, matplotlib or any other method in python. Describe what the x-axis & y-axis of the ROC curve tell us about a classifier.**
+#
+# %%
+plot_roc_curve(gbm_tuned.best_estimator_, X_test, y_test);
+plt.plot([0.01 * x for x in range(101)],
+         [0.01 * x for x in range(101)], linestyle='--');
+# %% [markdown]
+# As threshold is lowered, the x-axis tells how many false positives are observed, while y-axis tells how many true positives are captured. The "ideal" classifier has a straight vertical line at x = 0, followed by a straight horizontal line at y = 1, which means that at some threshold, all the true positives are captured with 0 false positives. The area under this curve is 1. Good classifiers have their vertex as close to top left as possible, which implies that a good threshold will capture most true positives with very few false positives.
+#
