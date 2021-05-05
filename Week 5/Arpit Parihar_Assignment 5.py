@@ -148,7 +148,7 @@ def model_fit_and_report(X_train, X_test, y_train, y_test, base, title, labels, 
                            title + ' Train Performance')
 
     return model
-# %%
+# %% [markdown]
 # ### 2\. Random Forest Classifier - Base Model:
 # %%
 labels = sorted(train['class'].unique())
@@ -205,7 +205,7 @@ svm_poly = model_fit_and_report(
 print(f'Polynomial SVM best parameters = {svm_poly.best_params_}')
 print(f'Polynomial SVM best estimator = {svm_poly.best_estimator_}')
 # %% [markdown]
-
+# This model is overfitting, as the performance on training data is near perfect, but the performance on test data is poorer than most other models fit before.
 # %% [markdown]
 # ### 6\. Support Vector Machine Classifier + RBF Kernel + Grid Search:
 # %%
@@ -223,17 +223,28 @@ svm_rbf = model_fit_and_report(
 print(f'Radial SVM best parameters = {svm_rbf.best_params_}')
 print(f'Radial SVM best estimator = {svm_rbf.best_estimator_}')
 # %% [markdown]
-
+# Like most other models, this one is overfitting as well. The performance on test data is better than all others, but as the model generalizes poorly, it might not perform this well on more unseen data.
 # %% [markdown]
 # ### 7\. Conceptual Questions:
 # 
 # **a) From the models run in steps 2-6, which performs the best based on the Classification Report? Support your reasoning with evidence around your test data.**
 # 
+# Model 4 - Tuned SVM with linear kernel performs the best. Although its performance is slightly lower than some other models, it's overfitting the least, and is expected to perform consistently on more unseen data, while other models are overfitting a lot, and test performance numbers might change erratically on other test data sets.
+# 
 # **b) Compare models run for steps 4-6 where different kernels were used. What is the benefit of using a polynomial or rbf kernel over a linear kernel? What could be a downside of using a polynomial or rbf kernel?**
+# 
+# Model with rbf kernel performs the best out of the bunch on test data, but is overfitting. Polynomial performs the worst, and linear is in between, although it is overfitting the least. Polynomial and RBF kernels are used when the data is not linearly separable, they map the data to a higher dimension function space, where it becomes separable using a hyperplane. The downside of these kernels are their high complexity, which might lead to overfitting, and the higher computational time required.
 # 
 # **c) Explain the 'C' parameter used in steps 4-6. What does a small C mean versus a large C in sklearn? Why is it important to use the 'C' parameter when fitting a model?**
 # 
+# C is a regularization parameter which controls how misclassifications are penalized when the model is trained. Smaller C means higher regularization, which means more misclassifications are allowed to avoid overfitting. Higher C value means less regularization, which means very few misclassifications are allowed and the models might overfit.  
+# 
 # **d) Scaling our input data does not matter much for Random Forest, but it is a critical step for Support Vector Machines. Explain why this is such a critical step. Also, provide an example of a feature from this data set that could cause issues with our SVMs if not scaled.**
 # 
+# SVMs depend on the distance between the decision boundary and the support vectors to create margins. If data is not scaled, variables with larger magnitudes will have a high influence on the position of the hyperplane used for separation, even when they aren't good predictors. 
+# 
+# One example from this dataset is the feature **BordLngth_140**, which has the higher magnitude than most other features, and will unproportionately influence the decision boundary if not scaled.
+# 
 # **e) Describe conceptually what the purpose of a kernel is for Support Vector Machines.**
-# %%
+# 
+# A kernel maps data to a higher dimension function space, to separate the data using a hyperplane. The data might not be linearly separable in the current feature space, say 2D for instance, but when transformed to a higher dimensional space, say 3D, using a function or a kernel, it might become separable using a hyperplane.
