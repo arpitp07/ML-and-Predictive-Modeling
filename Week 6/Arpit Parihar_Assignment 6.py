@@ -115,10 +115,12 @@ rec_scores
 
 # %% [markdown]
 #  - 4\. What are the top 5 song recommendations for user 1606?
+# 
+#  Bands already listened to by 1606 will not show up in the recommendations, as we should recommend only the bands the user doesn't listen to
 
 # %%
 print('Recommended bands for user 1606:\n')
-pd.DataFrame(rec_scores.loc[1606, :].nlargest(5).index, columns=['Recommended'])
+rec_scores.loc[1606, :].nlargest(5)
 
 # %% [markdown]
 # ### 2\. Conceptual questions:
