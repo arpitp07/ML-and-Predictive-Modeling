@@ -1,10 +1,10 @@
 # %% [markdown]
-#    # Machine Learning and Predictive Modeling - Assignment 8
-#    ### Arpit Parihar
-#    ### 05/26/2021
-#    ****
+# # Machine Learning and Predictive Modeling - Assignment 8
+# ### Arpit Parihar
+# ### 05/26/2021
+# ****
 # %% [markdown]
-#    **Importing modules**
+# **Importing modules**
 
 # %%
 import numpy as np
@@ -29,7 +29,7 @@ warnings.filterwarnings('ignore')
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # %% [markdown]
-#  **Setting seed for reproducibility**
+# **Setting seed for reproducibility**
 
 # %%
 seed_value = 2
@@ -39,7 +39,7 @@ np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
 # %% [markdown]
-#  ### 1\. Data Processing
+# ### 1\. Data Processing
 
 # %%
 dataframe = pd.read_csv('dev-access.csv', engine='python',
@@ -93,32 +93,32 @@ X_train, X_test, y_train, y_test = train_test_split(
 # 
 # Params:
 # 
-#  - input_dim = num_words (the variable we created above)
-#  - output_dim = 32
-#  - input_length = max_log_length (we also created this above)
-#  - Keep all other variables as the defaults (shown below)
+# - input_dim = num_words (the variable we created above)
+# - output_dim = 32
+# - input_length = max_log_length (we also created this above)
+# - Keep all other variables as the defaults (shown below)
 # 
 # c) Add a SimpleRNN layer: https://keras.io/layers/recurrent/
 # 
 # Params:
 # 
-#  - units = 32
-#  - activation = 'relu'
+# - units = 32
+# - activation = 'relu'
 # 
 # d) Finally, we will add a Dense layer: https://keras.io/layers/core/#dense
 # 
 # Params:
 # 
-#  - units = 1 (this will be our output)
-#  - activation --> you can choose to use either relu or sigmoid.
+# - units = 1 (this will be our output)
+# - activation --> you can choose to use either relu or sigmoid.
 # 
 # e) Compile model using the .compile() method: https://keras.io/models/model/
 # 
 # Params:
 # 
-#  - loss = binary_crossentropy
-#  - optimizer = adam
-#  - metrics = accuracy
+# - loss = binary_crossentropy
+# - optimizer = adam
+# - metrics = accuracy
 # 
 # f) Print the model summary
 # 
@@ -153,17 +153,17 @@ print(f'\nRNN Accuracy = {round(results_RNN[1], 4)}')
 # Now we will add a few new layers to our RNN and incorporate the more powerful LSTM. You will be creating a new model here, so make sure to call it something different than the model from Part 2.
 # 
 # a) This RNN needs to have the following layers (add in this order):
-#  - Embedding Layer (use same params as before)
-#  - LSTM Layer (units = 64, recurrent_dropout = 0.5)
-#  - Dropout Layer - use a value of 0.5
-#  - Dense Layer - (use same params as before)
+# - Embedding Layer (use same params as before)
+# - LSTM Layer (units = 64, recurrent_dropout = 0.5)
+# - Dropout Layer - use a value of 0.5
+# - Dense Layer - (use same params as before)
 # b) Compile model using the .compile() method:
 # 
 # Params:
 # 
-#  - loss = binary_crossentropy
-#  - optimizer = adam
-#  - metrics = accuracy
+# - loss = binary_crossentropy
+# - optimizer = adam
+# - metrics = accuracy
 # 
 # c) Print the model summary
 # 
@@ -199,12 +199,12 @@ print(f'\nLSTM Accuracy = {round(results_LSTM[1], 4)}')
 #  You wil now create your RNN based on what you have learned from Model 1 & Model 2:
 # 
 # a) RNN Requirements:
-#   - Use 5 or more layers
-#   - Add a layer that was not utilized in Model 1 or Model 2 (Note: This could be a new Dense layer or an additional LSTM)
+# - Use 5 or more layers
+# - Add a layer that was not utilized in Model 1 or Model 2 (Note: This could be a new Dense layer or an additional LSTM)
 # 
 # b) Compiler Requirements:
-#   - Try a new optimizer for the compile step
-#   - Keep accuracy as a metric (feel free to add more metrics if desired)
+# - Try a new optimizer for the compile step
+# - Keep accuracy as a metric (feel free to add more metrics if desired)
 # 
 # c) Print the model summary
 # 
@@ -237,30 +237,29 @@ print(f'\nCustom Model Loss = {round(results_custom[0], 4)}')
 print(f'\nCustom Model Accuracy = {round(results_custom[1], 4)}')
 
 # %% [markdown]
-#  ### Conceptual Questions:
-#  **5) Explain the difference between the relu activation function and the sigmoid activation function.**
-# 
-#  The ReLU activation function aims to lower the computational overhead in deep neural networks, and also alleviates vanishing gradient. It outputs 0 for negative inputs, and the input itself for positive ones. The function is non differentiable at x = 0, but the probability of the input being exactly 0 in a 16 or 32 bit float variable is almost non-existent, and the derivative can be hardcoded to be 0 or 1 at x = 0.
-# 
-#  Sigmoid function squishes the input between 0 and 1, and so has a vanishing gradient problem. It's computationaly expensive as compared to ReLU, and should not be used for deep neural networks, except for gates in LSTM and GRU.
-# 
-#  **6) Describe what one epoch actually is (epoch was a parameter used in the .fit() method).**
-# 
-#  One epoch is passing the training data through the model once. For small learning rates, one pass through the data might not be enough for the optimizer to find the minima, which is why multiple epochs are needed to train the neural network.
-# 
-#  **7) Explain how dropout works (you can look at the keras code and/or documentation) for (a) training, and (b) test data sets.**
-# 
-#  For training data, dropout sets randomly chosen activations to 0 with a probability $p$. The activations not set to 0 are scaled up by a factor of $1/(1-p)$ to keep the sum over all inputs unchanged.
-# 
-#  For test data, the dropout layer is inactive.
-# 
-#  **8) Explain why problems such as this homework assignment are better modeled with RNNs than CNNs. What type of problem will CNNs outperform RNNs on?**
-# 
-#  RNNs are better suited for sequences, as they remember dependencies in data. CNNs on the other hand work well for images, as the filters act over regions of data and extract information to create feature maps.
-# 
-#  In this problem, each record is dependent on previous ones, making RNN the better choice. Although CNNs are specialized for image data, they can be used for sequences as well, and should be picked when optimizing for performance on high dimensional data, as CNNs are faster.
-# 
-#  **9) Explain what RNN problem is solved using LSTM and briefly describe how.**
-# 
-#  RNNs struggle with vanishing gradients when dealing with long term dependencies as the derivatives are multiplied several times over for longer sequences. LSTMs address with by maintaining a cell state alongside the hidden state, which acts as "memory" to remember long term interactions.
-
+# ### Conceptual Questions:
+# **5) Explain the difference between the relu activation function and the sigmoid activation function.**
+#
+# The ReLU activation function aims to lower the computational overhead in deep neural networks, and also alleviates vanishing gradient. It outputs 0 for negative inputs, and the input itself for positive ones. The function is non differentiable at x = 0, but the probability of the input being exactly 0 in a 16 or 32 bit float variable is almost non-existent, and the derivative can be hardcoded to be 0 or 1 at x = 0.
+#
+# Sigmoid function squishes the input between 0 and 1, and so has a vanishing gradient problem. It's computationaly expensive as compared to ReLU, and should not be used for deep neural networks, except for gates in LSTM and GRU.
+#
+# **6) Describe what one epoch actually is (epoch was a parameter used in the .fit() method).**
+#
+# One epoch is passing the training data through the model once. For small learning rates, one pass through the data might not be enough for the optimizer to find the minima, which is why multiple epochs are needed to train the neural network.
+#
+# **7) Explain how dropout works (you can look at the keras code and/or documentation) for (a) training, and (b) test data sets.**
+#
+# For training data, dropout sets randomly chosen activations to 0 with a probability $p$. The activations not set to 0 are scaled up by a factor of $1/(1-p)$ to keep the sum over all inputs unchanged.
+#
+# For test data, the dropout layer is inactive.
+#
+# **8) Explain why problems such as this homework assignment are better modeled with RNNs than CNNs. What type of problem will CNNs outperform RNNs on?**
+#
+# RNNs are better suited for sequences, as they remember dependencies in data. CNNs on the other hand work well for images, as the filters act over regions of data and extract information to create feature maps.
+#
+# In this problem, each record is dependent on previous ones, making RNN the better choice. Although CNNs are specialized for image data, they can be used for sequences as well, and should be picked when optimizing for performance on high dimensional data, as CNNs are faster.
+#
+# **9) Explain what RNN problem is solved using LSTM and briefly describe how.**
+#
+# RNNs struggle with vanishing gradients when dealing with long term dependencies as the derivatives are multiplied several times over for longer sequences. LSTMs address with by maintaining a cell state alongside the hidden state, which acts as "memory" to remember long term interactions.
