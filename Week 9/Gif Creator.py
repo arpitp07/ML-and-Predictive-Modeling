@@ -4,8 +4,8 @@ import glob
 import PIL
 import re
 # %%
-dir_in = './BaseGAN Pics/'
-dir_out = './BaseGAN Pics/Gif/BaseGAN_gif.gif'
+dir_in = './BaseGAN/Pics'
+dir_out = './BaseGAN/Pics/Gif/BaseGAN_gif.gif'
 format = 'png'
 
 files = glob.glob(os.path.join(dir_in, '*.' + format))

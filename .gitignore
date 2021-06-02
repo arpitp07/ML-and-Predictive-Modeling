@@ -147,22 +147,21 @@ Week 7/Models/Seed 100
 Week 9/**/*.jpg
 Week 9/**/*.png
 Week 9/**/*.gif
-Week 9/**/*.tfevents
-Week 9/GANsformer logs/events.out.tfevents.1622381656.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622383106.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622384415.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622385775.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622386716.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622388093.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622393210.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622393639.d921bfe8bfca
-Week 9/GANsformer logs/events.out.tfevents.1622424864.1296c4d114bf
-Week 9/GANsformer logs/events.out.tfevents.1622425355.1296c4d114bf
-Week 9/GANsformer logs/events.out.tfevents.1622440582.1296c4d114bf
-Week 9/GANsformer logs/events.out.tfevents.1622537795.c6aa97310e92
-Week 9/StyleGAN logs/events.out.tfevents.1622515385.eb6f0174aa98
-Week 9/StyleGAN logs/events.out.tfevents.1622519978.ee2e3abf6e94
-Week 9/StyleGAN logs/events.out.tfevents.1622522492.ab52c99ff640
-Week 9/StyleGAN logs/events.out.tfevents.1622525249.6cc6a3b85cb3
-Week 9/StyleGAN logs/events.out.tfevents.1622548146.7744889b0eb9
-Week 9/StyleGAN logs/events.out.tfevents.1622569923.1612a0b40188
+Week 9/Gansformer/Logs/events.out.tfevents.1622381656.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622383106.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622384415.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622385775.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622386716.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622388093.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622393210.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622393639.d921bfe8bfca
+Week 9/Gansformer/Logs/events.out.tfevents.1622424864.1296c4d114bf
+Week 9/Gansformer/Logs/events.out.tfevents.1622425355.1296c4d114bf
+Week 9/Gansformer/Logs/events.out.tfevents.1622440582.1296c4d114bf
+Week 9/Gansformer/Logs/events.out.tfevents.1622537795.c6aa97310e92
+Week 9/StyleGAN/Logs/events.out.tfevents.1622515385.eb6f0174aa98
+Week 9/StyleGAN/Logs/events.out.tfevents.1622519978.ee2e3abf6e94
+Week 9/StyleGAN/Logs/events.out.tfevents.1622522492.ab52c99ff640
+Week 9/StyleGAN/Logs/events.out.tfevents.1622525249.6cc6a3b85cb3
+Week 9/StyleGAN/Logs/events.out.tfevents.1622548146.7744889b0eb9
+Week 9/StyleGAN/Logs/events.out.tfevents.1622569923.1612a0b40188
